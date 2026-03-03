@@ -1,0 +1,14 @@
+name: gwas_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - networkx
+  - openpyxl
+  - umap-learn
+  - ipykernel
+  - jupyterlab
