@@ -1,82 +1,46 @@
 # Sorghum Pareto–Phenolics Analysis Pipeline
 
-This repository provides a reproducible analysis pipeline for the manuscript:
+Reproducible analysis pipeline for the manuscript:
 
-**“An efficient frontier links phenolic specialization to high-yield states in mutagenized sorghum.”**
+**“Pareto geometry and entropy–yield scaling map trade-offs in sorghum phenolic mutants.”**
 
-The pipeline performs:
-- Phenotypic manifold learning (PCA + optional UMAP)
-- Multi-objective Pareto optimization (efficient frontier and knee point)
-- Differential metabolic network rewiring (correlation difference + Fisher’s Z-test)
-- Metabolic specialization (Shannon entropy of phenolic composition)
-- Metabolic control shift (eigenvector centrality)
-- Genetic convergence analysis on elite-associated loci (PCA on key GWAS loci)
+This repository rebuilds all derived results from publicly available input tables (Lee et al., 2023) and writes
+the main combined workbook **`Supplementary_Data_S1_master.xlsx`** plus CSV exports under `./outputs/`.
 
-## Data provenance (source of input files)
+## What this repo does
 
-The **raw phenotypic and genotypic datasets** analyzed here were originally published by:
+Main pipeline (`sorghum_analysis_pipeline.py`) performs:
 
-Lee, Y.-J. et al. (2023). *Genome-wide association study (GWAS) of the agronomic traits and phenolic content in sorghum (Sorghum bicolor L.) genotypes.* **Agronomy** 13, 1449. https://doi.org/10.3390/agronomy13061449
+- Phenotypic embedding (PCA; optional UMAP if installed)
+- Multi-objective Pareto optimization (efficient frontier + knee point)
+- Differential phenolic co-variation (correlation difference + Fisher’s z-test)
+- Compositional entropy (Shannon H) and derived phenotype summaries
+- Correlation-graph “control shift” (eigenvector centrality)
+- Allele-frequency shift summaries on GWAS-hit SNPs (ΔAF)
+- Genetic convergence / equifinality summaries on key SNPs
 
-This repository does **not** claim ownership of the original datasets. Please cite the paper above when using the input tables.
+## Data source
+
+The raw phenotypic and genotypic tables were originally published by:
+
+Lee, Y.-J. et al. (2023). *Genome-wide association study (GWAS) of the agronomic traits and phenolic content in sorghum
+(Sorghum bicolor L.) genotypes.* Agronomy 13, 1449. https://doi.org/10.3390/agronomy13061449
+
+This repository does not claim ownership of the original datasets. Please cite the paper above when using the input tables.
 
 ## Inputs
 
-Place the following files either in the repository root or in `./data/`:
+Place the following Excel files either in the repository root or in `./data/`:
 
-- `Table S2.xlsx` — Phenotypes (includes the 6 phenolic traits used for the manifold)
-- `Table S3.xlsx` — SNP burden per line
-- `Table S4.xlsx` — Genotypes (SNP matrix; includes sample columns 1–96; the script canonicalizes columns like `23_1` → `23`)
+- `Table S2.xlsx` — phenotypes (includes the 6 phenolic traits; row order defines sample_id 1–96)
+- `Table S3.xlsx` — SNP summary metrics per line (includes total SNP count and heterozygous SNP count)
+- `Table S4.xlsx` — genotype matrix (SNPs × samples; script canonicalizes sample columns like `23_1 → 23`)
 - `Table S5.xlsx` — GWAS hits (part 1)
 - `Table S6.xlsx` — GWAS hits (part 2)
 
-> Note: Users may obtain these as supplementary tables from Lee et al. (2023) and/or associated public archives referenced in that publication.
+## Quick start (recommended: conda)
 
-## Quick start
-
-### 1) Install dependencies
+### 1) Create environment
 ```bash
-pip install -r requirements.txt
-
-
-### 2) Run the pipeline
-python sorghum_analysis_pipeline.py
-
-utputs will be created under:
-
-./outputs/tables/ (CSV tables + a combined Excel file)
-
-Outputs
-
-Key outputs include:
-
-outputs/tables/Supplementary_Data_S1_master.xlsx
-A combined workbook containing:
-
-phenotypes_master, pareto_front
-
-diff_correlation, diff_corr_pvalues
-
-entropy_data, control_shift
-
-hit_snp_pairs, hit_snp_altfreq_delta, key_snps_for_convergence
-
-genetic_convergence, convergence_stats
-
-sampleid_to_line
-
-CSV exports of the same tables for convenient downstream use.
-
-Reproducibility notes
-
-Random seed is fixed (42) to ensure stable manifold projection.
-
-Delta allele frequency (ΔAF) uses alt allele ≠ ref (robust).
-
-Genetic convergence PCA encodes the second allele (index 1) in the Allele field to match the manuscript’s reported behavior.
-
-Data availability statement (for the manuscript)
-
-The raw phenotypic and genotypic datasets analyzed in this study were originally published by Lee et al. (2023) and are publicly available.
-All derived data generated in this study, including Pareto optimality labels, metabolic entropy metrics, and network analysis results, are provided in Supplementary Data 1 accompanying the manuscript.
-All custom Python scripts used to reproduce the analyses are available in this repository.
+conda env create -f environment.yml
+conda activate gwas_env
