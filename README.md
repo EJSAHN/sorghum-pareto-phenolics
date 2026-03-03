@@ -5,7 +5,7 @@ Reproducible analysis pipeline for the manuscript:
 **“Pareto geometry and entropy–yield scaling map trade-offs in sorghum phenolic mutants.”**
 
 This repository rebuilds all derived results from publicly available input tables (Lee et al., 2023) and writes
-the main combined workbook **`Supplementary_Data_S1_master.xlsx`** plus CSV exports under `./outputs/`.
+the combined workbook **`Supplementary_Data_S1_master.xlsx`** plus CSV exports under `./outputs/`.
 
 ## What this repo does
 
@@ -44,3 +44,59 @@ Place the following Excel files either in the repository root or in `./data/`:
 ```bash
 conda env create -f environment.yml
 conda activate gwas_env
+```
+
+### 2) Run the main pipeline
+```bash
+python sorghum_analysis_pipeline.py
+```
+
+Outputs are written to:
+- `./outputs/tables/` (CSV tables + a combined Excel workbook)
+
+## Key outputs
+
+- `outputs/tables/Supplementary_Data_S1_master.xlsx`
+  - `phenotypes_master`, `pareto_front`
+  - `diff_correlation`, `diff_corr_pvalues`
+  - `entropy_data`, `control_shift`
+  - `hit_snp_pairs`, `hit_snp_altfreq_delta`, `key_snps_for_convergence`
+  - `genetic_convergence`, `convergence_stats`
+  - `sampleid_to_line`
+
+- `outputs/tables/run_summary.json` (run metadata: Pareto count, knee line, thresholds, seed)
+
+Reproducibility notes:
+- Random seed is fixed (42) for stable manifold projection.
+- ΔAF uses: alt allele != ref (robust).
+- Genetic convergence PCA encodes the second allele in the `Allele` field to match the manuscript behavior.
+
+## Robustness / sensitivity suite (add-on)
+
+Utilities supporting robustness checks and objective/proxy sensitivity analyses:
+
+- `tools/check_s1_reproducibility.py`  
+  Compare two `Supplementary_Data_S1_master.xlsx` files (or two `outputs/tables/` directories).
+
+- `tools/sorghum_robustness_suite.py`  
+  Writes additional tables under `outputs/tables/reviewer_response/`:
+  - entropy–yield correlations (overall + by type)
+  - Pareto sensitivity to SNP proxy choice (Jaccard overlap)
+  - jackknife stability of Pareto membership and knee selection
+  - top-k vs Pareto overlap
+  - objective-switch top-5 summaries
+
+- `tools/run_reproduce_and_robustness.py`  
+  One-command workflow: rerun pipeline → (optional) compare S1 → run robustness suite.
+
+Example:
+```bash
+python tools/run_reproduce_and_robustness.py \
+  --repo . \
+  --data /path/to/folder_with_Table_S2_to_S6 \
+  --baseline /path/to/baseline_outputs/tables
+```
+
+## License / citation
+
+Please cite the associated manuscript and Lee et al. (2023) when using these scripts.
